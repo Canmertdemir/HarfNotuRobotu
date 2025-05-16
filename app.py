@@ -20,7 +20,7 @@ def quiz_ortalama():
 def genel_ortalama():
     data = request.get_json()
     quiz_avg = sum([data['quiz1'], data['quiz2'], data['quiz3'], data['quiz4']]) / 4
-    genel = quiz_avg * 0.2 + data['vize'] * 0.3 + data['final'] * 0.5
+    genel = quiz_avg * 0.1 + data['vize'] * 0.3 + data['final'] * 0.6
     harf = 'AA' if genel >= 90 else 'BA' if genel >= 85 else 'BB' if genel >= 75 else 'CC'
     return jsonify({'genel_ortalama': round(genel, 2), 'harf_notu': harf})
 
