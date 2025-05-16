@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Quiz ve Ortalama Hesaplama</title>
+  <style>
+    body {
+      background: linear-gradient(to bottom right, #ff8a80, #c62828);
+      font-family: Arial, sans-serif;
+      color: #fff;
+      padding: 80px 20px 20px;
+      margin: 0;
+    }
+    nav {
+      background: #222;
+      padding: 10px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+    }
+    nav a {
+      color: white;
+      margin-right: 20px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    h1, h2 {
+      text-align: center;
+      color: white;
+    }
+    label {
+      display: block;
+      margin: 8px 0 2px;
+      color: white;
+    }
+    input {
+      padding: 5px;
+      width: 100%;
+      border-radius: 5px;
+      border: none;
+      margin-bottom: 10px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background-color: #222;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #555;
+    }
+    .result {
+      margin-top: 10px;
+      font-weight: bold;
+      color: white;
+    }
+    .form-section {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 20px;
+      margin-bottom: 30px;
+      border-radius: 10px;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="{{ url_for('anasayfa') }}">Ana Sayfa</a>
+  <a href="{{ url_for('home') }}">Not Hesaplama</a>
+</nav>
+
+<h1>Not Hesaplama Sistemi</h1>
+
+<div class="form-section">
+  <h2>Quiz Ortalaması</h2>
+  <label>Quiz 1:</label><input type="number" id="q1">
+  <label>Quiz 2:</label><input type="number" id="q2">
+  <label>Quiz 3:</label><input type="number" id="q3">
+  <label>Quiz 4:</label><input type="number" id="q4">
+  <button onclick="hesaplaQuiz()">Quiz Ortalaması Hesapla</button>
+  <div class="result" id="quizSonuc"></div>
+</div>
+
+<div class="form-section">
+  <h2>Genel Ortalama</h2>
+  <label>Vize:</label><input type="number" id="vize">
+  <label>Final:</label><input type="number" id="final">
+  <button onclick="hesaplaGenel()">Genel Ortalama Hesapla</button>
+  <div class="result" id="genelSonuc"></div>
+</div>
+
+<div class="form-section">
+  <h2>Devamsızlık Hesaplama</h2>
+  <label>Uygulamalı mı? (1 = Evet, 0 = Hayır):</label><input type="number" id="uygulamali">
+  <label>Haftalık Ders Sayısı:</label><input type="number" id="haftalik">
+  <label>Teorik Saat:</label><input type="number" id="teorik">
+  <label>Uygulama Saat:</label><input type="number" id="uygulama">
+  <label>Devamsızlık Süresi:</label><input type="number" id="devamsizlik">
+  <button onclick="hesaplaDevamsizlik()">Devamsızlık Hesapla</button>
+  <div class="result" id="devamSonuc"></div>
+</div>
+
+<script>
+  async function hesaplaQuiz() {
+    const data = {
+      quiz1: parseFloat(document.getElementById('q1').value) || 0,
+      quiz2: parseFloat(document.getElementById('q2').value) || 0,
+      quiz3: parseFloat(document.getElementById('q3').value) || 0,
+      quiz4: parseFloat(document.getElementById('q4').value) || 0
+    };
+    const res = await fetch('/quiz-ortalama', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const json = await res.json();
+    document.getElementById('quizSonuc').innerText = json.quiz_ortalama !== undefined ?
+      `Quiz Ortalaması: ${json.quiz_ortalama}` : json.error;
+  }
+
+  async function hesaplaGenel() {
+    const data = {
+      quiz1: parseFloat(document.getElementById('q1').value) || 0,
+      quiz2: parseFloat(document.getElementById('q2').value) || 0,
+      quiz3: parseFloat(document.getElementById('q3').value) || 0,
+      quiz4: parseFloat(document.getElementById('q4').value) || 0,
+      vize: parseFloat(document.getElementById('vize').value) || 0,
+      final: parseFloat(document.getElementById('final').value) || 0
+    };
+    const res = await fetch('/genel-ortalama', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const json = await res.json();
+    document.getElementById('genelSonuc').innerText = json.genel_ortalama !== undefined ?
+      `Genel Ortalama: ${json.genel_ortalama} | Harf Notu: ${json.harf_notu}` : json.error;
+  }
+
+  async function hesaplaDevamsizlik() {
+    const data = {
+      uygulamali_mi: parseInt(document.getElementById('uygulamali').value) || 0,
+      haftalik_ders_sayisi: parseInt(document.getElementById('haftalik').value) || 0,
+      teorik_saat: parseInt(document.getElementById('teorik').value) || 0,
+      uygulama_saat: parseInt(document.getElementById('uygulama').value) || 0,
+      devamsizlik: parseInt(document.getElementById('devamsizlik').value) || 0
+    };
+    const res = await fetch('/devamsizlik', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const json = await res.json();
+    document.getElementById('devamSonuc').innerText = json.durum || json.error;
+  }
+</script>
+
+</body>
+</html>

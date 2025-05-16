@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ana Sayfa - Bilgisayar Programcılığı</title>
+  <style>
+    body {
+      background: linear-gradient(to right, #4facfe, #00f2fe);
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding-top: 150px;
+      margin: 0;
+    }
+    nav {
+      background: #222;
+      padding: 10px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+    }
+    nav a {
+      color: white;
+      margin-right: 20px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    h1 {
+      font-size: 48px;
+      margin-bottom: 40px;
+    }
+    .btn {
+      padding: 15px 30px;
+      font-size: 20px;
+      border-radius: 10px;
+      background-color: #007bff;
+      border: none;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="{{ url_for('anasayfa') }}">Ana Sayfa</a>
+    <a href="{{ url_for('home') }}">Not Hesaplama</a>
+  </nav>
+
+  <h1>Bilgisayar Programcılığı Yorabilir</h1>
+
+  <a href="{{ url_for('home') }}">
+    <button class="btn">Not Hesaplama Sistemine Git</button>
+  </a>
+
+</body>
+</html>
