@@ -23,16 +23,18 @@ def anasayfa():
 def home():
     return render_template('index.html')
 
+def quiz_ortalama_hesapla(data):
+    return sum([data['quiz1'], data['quiz2'], data['quiz3'], data['quiz4']]) / 4
+
 @app.route('/quiz-ortalama', methods=['POST'])
 def quiz_ortalama():
-
     data = request.get_json()
 
     gecerli , mesaj = quiz_not_kontrol(data)
     if not gecerli:
         return jsonify({'Hata!': mesaj})
 
-    q_avg = sum([data['quiz1'], data['quiz2'], data['quiz3'], data['quiz4']]) / 4
+    q_avg = quiz_ortalama_hesapla(data)
     return jsonify({'quiz_ortalama': round(q_avg, 2)})
 
 @app.route('/genel-ortalama', methods=['POST'])
@@ -43,26 +45,44 @@ def genel_ortalama():
     if not gecerli:
         return jsonify({'Hata!': mesaj})
 
-    quiz_avg = quiz_ortalama()
+    gecerli_quiz, mesaj_quiz = quiz_not_kontrol(data)
+    if not gecerli_quiz:
+        return jsonify({'Hata!': mesaj_quiz})
+
+    quiz_avg = quiz_ortalama_hesapla(data)
+
     genel = quiz_avg * 0.1 + data['vize'] * 0.3 + data['final'] * 0.6
     harf = 'AA' if genel >= 90 else 'BA' if genel >= 85 else 'BB' if genel >= 75 else 'CC'
+
     return jsonify({'genel_ortalama': round(genel, 2), 'harf_notu': harf})
+
 
 @app.route('/devamsizlik', methods=['POST'])
 def devamsizlik():
     data = request.get_json()
 
-    if  data['uygulamali'] == 0:
-        toplam_devamsizlik_hakki = (15 * data['teorik']) * 0.4
-    else:
-        toplam_devamsizlik_hakki = (15 * data['uygulama']) * 0.3
+    required_keys = ['uygulamali', 'teorik', 'uygulama', 'devamsizlik']
+    for key in required_keys:
+        if key not in data:
+            return jsonify({'hata': f'{key} alanı eksik!'}), 400
 
-    if data['devamsizlik'] > toplam_devamsizlik_hakki:
-        durum = "Devamsızlıktan kaldı."
-    else:
-        durum = "Derse devaalı."
+    try:
+        if data['uygulamali'] == 0:
+            toplam_devamsizlik_hakki = (15 * data['teorik']) * 0.4
+        elif data['teorik'] == 1:
+            toplam_devamsizlik_hakki = 15 * (data['teorik'] * 0.4 + data['uygulama'] * 0.3)
+        else:
+            toplam_devamsizlik_hakki = (15 * data['uygulama']) * 0.3
 
-    return jsonify({'durum': durum})
+        if data['devamsizlik'] > toplam_devamsizlik_hakki:
+            durum = "Devamsızlıktan kaldı."
+        else:
+            durum = "Derse devamlı."
+
+        return jsonify({'durum': durum})
+    except Exception as e:
+        return jsonify({'hata': str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run("0.0.0.0", port=5000, debug=True)

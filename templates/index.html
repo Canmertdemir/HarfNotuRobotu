@@ -58,6 +58,9 @@
     button:hover {
       background-color: #555;
     }
+    .selected {
+      background-color: #4CAF50 !important;
+    }
     .result {
       margin-top: 10px;
       font-weight: bold;
@@ -103,7 +106,13 @@
 
 <div class="form-section">
   <h2>Devamsızlık Hesaplama</h2>
-  <label>Uygulamalı mı? (1 = Evet, 0 = Hayır):</label><input type="number" id="uygulamali">
+  <label>Uygulamalı mı?</label>
+  <div>
+    <button type="button" id="evet-btn">Evet</button>
+    <button type="button" id="hayir-btn">Hayır</button>
+  </div>
+  <input type="hidden" id="uygulamali" value="0">
+
   <label>Haftalık Ders Sayısı:</label><input type="number" id="haftalik">
   <label>Teorik Saat:</label><input type="number" id="teorik">
   <label>Uygulama Saat:</label><input type="number" id="uygulama">
@@ -151,10 +160,10 @@
 
   async function hesaplaDevamsizlik() {
     const data = {
-      uygulamali_mi: parseInt(document.getElementById('uygulamali').value) || 0,
-      haftalik_ders_sayisi: parseInt(document.getElementById('haftalik').value) || 0,
-      teorik_saat: parseInt(document.getElementById('teorik').value) || 0,
-      uygulama_saat: parseInt(document.getElementById('uygulama').value) || 0,
+      uygulamali: parseInt(document.getElementById('uygulamali').value) || 0,
+      haftalik: parseInt(document.getElementById('haftalik').value) || 0,
+      teorik: parseInt(document.getElementById('teorik').value) || 0,
+      uygulama: parseInt(document.getElementById('uygulama').value) || 0,
       devamsizlik: parseInt(document.getElementById('devamsizlik').value) || 0
     };
     const res = await fetch('/devamsizlik', {
@@ -165,6 +174,23 @@
     const json = await res.json();
     document.getElementById('devamSonuc').innerText = json.durum || json.error;
   }
+
+  // Uygulamalı mı? buton kontrolü
+  const evetBtn = document.getElementById('evet-btn');
+  const hayirBtn = document.getElementById('hayir-btn');
+  const uygInput = document.getElementById('uygulamali');
+
+  evetBtn.addEventListener('click', () => {
+    uygInput.value = '1';
+    evetBtn.classList.add('selected');
+    hayirBtn.classList.remove('selected');
+  });
+
+  hayirBtn.addEventListener('click', () => {
+    uygInput.value = '0';
+    hayirBtn.classList.add('selected');
+    evetBtn.classList.remove('selected');
+  });
 </script>
 
 </body>
